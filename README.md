@@ -14,7 +14,7 @@ Familiarity with the Ramsey model, numerical methods, and Julia.
 
 ## Key figure
 
-<img src="./fig/ck-tangents.svg">
+[](./fig/ck-tangents.svg?raw=true)
 
 ## Bibliography
 
