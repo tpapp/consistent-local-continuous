@@ -14,7 +14,7 @@ Familiarity with the Ramsey model, numerical methods, and Julia.
 
 ## Key figure
 
-![Approximated policy function and tangents.](fig/ck-tangents.svg)
+<img src="./fig/ck-tangents.svg">
 
 ## Bibliography
 
