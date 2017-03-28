@@ -12,10 +12,6 @@ Familiarity with the Ramsey model, numerical methods, and Julia.
 - [src/](./src/) has the Julia source.
 - [fig/](./fig/) has the figures.
 
-## Key figure
-
-[](./fig/ck-tangents.svg?raw=true)
-
 ## Bibliography
 
 Den Haan, Wouter J., Michal L. Kobielarz, and Pontus Rendahl. Exact present solution with consistent future approximation: A gridless algorithm to solve stochastic dynamic models. No. 1536. 2015.
