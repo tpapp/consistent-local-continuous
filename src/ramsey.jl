@@ -124,6 +124,9 @@ function continuation_solver(model, ks, k₀, x₀; norm_p = 2)
     xs
 end
 
+"A guess from an existing grid of solutions, using the nearest `k`."
+nearest_k_guess(ks, c01s, k) = c01s[:, findmin(norm(ks-k, 2))[2]]
+
 """
 Plot tangent with level and slope `c01` at `k`. `ℓ` is the half-length
 of tangent line, `s` compensates for scale differences between axes.
@@ -203,6 +206,10 @@ inner_ks, inner_c′_approx, inner_r = residual_quadapprox(model, ks, c01s[1,:])
 # collocation
 res = CollocationResidual(model, DomainTrans(kdom, Chebyshev(10)), euler_residual)
 c_sol, o = solve_collocation(res, k->cₛ*k/kₛ; ftol=1e-10, method = :newton)
+
+# collocation using a better starting point, guessed from the consistent future
+c_sol2, o2 = solve_collocation(res,
+                               k -> solve_at_k(model, k, nearest_k_guess(ks, c01s, k))[1])
 
 ######################################################################
 # plots
