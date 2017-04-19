@@ -9,7 +9,7 @@
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
-\usepackage[margin=2cm]{geometry}
+\usepackage[margin=25mm]{geometry}
 \usepackage[tt=false]{libertine}
 \usepackage{xifthen}
 \usepackage[x11names,rgb]{xcolor}
@@ -41,7 +41,7 @@
 \begin{document}
 
 \title{Consistent local approximation in continuous time}
-\author{Tam\'as K.~Papp\thanks{\url{tkpapp@gmail.com}}}
+\author{Tam\'as K.~Papp\thanks{E-mail: \url{tkpapp@gmail.com}. This note was prepared for the 2017 Festschrift in honor of Júlia Király, who I was fortunate to have as a teacher. I would like to thank Pontus Rendahl and Anna Naszódi for comments.}}
 \date{\today}
 \maketitle
 
@@ -50,7 +50,7 @@
 \end{abstract}
 
 \begin{center}
-  \textsl{See the repository at \url{https://github.com/tpapp/exact-present} 
+  \textsl{See the repository at \url{https://github.com/tpapp/consistent-local-continuous}
     for the accompanying code in \textsc{Julia}\nocite{bezanson17:_julia}.}
 \end{center}
 
@@ -60,7 +60,7 @@ Continuous time models have been used extensively in macroeconomics, finance, an
 
 While one of the reasons for this may be unfamiliarity with continuous-time building blocks such as Itô and Lévy processes,\footnote{For an introduction, see \textcite{oksendal2005applied}.} the other difficulty is finding a solution to the resulting functional equations. When using projection methods, functional forms that describe optimal choices and values are approximated using function families with finitely many parameters. Since in continuous time there is no general contraction mapping equivalent to value iteration in discrete time, usually the only option is to solve these problems using general nonlinear solvers, which are not guaranteed to converge, especially when the starting point is not close enough to the solution.\footnote{\textcite{kushner2013numerical} presents an alternative method, using discrete-time approximations of continuous processes.}
 
-\textcite{den2015exact} propose a method for finding approximate solutions to discrete time systems described by a functional equation, by approximating policy functions with a linear (or similarly simple) form and imposing consistency between present and future policies around a particular state. \textcite{levintal2016taylor} proposed a similar method independently, while an very similar approach can be found in \textcite[Appendix B]{krusell2002equilibrium}. In this short note I show that this method can be applied to continuous time systems, and examine its practicality and accuracy in the context of one of the simplest continuous time models, the deterministic Ramsey model. The advantage of this model is that it is relatively well-studied,\footnote{\textcite{aruoba2006comparing} compare a variety of numerical methods for the discrete-time version of this model with a stochastic productivity.} and despite its simplicity, it is sufficient for making the following points about the proposed method in continuous time:
+\textcite{den2015exact} propose a method for finding approximate solutions to discrete time systems described by a functional equation, by approximating policy functions with a linear (or similarly simple) form and imposing consistency between present and future policies around a particular state. \textcite{levintal2016taylor} proposed a similar method, while a very similar approach can be found in \textcite[Appendix B]{krusell2002equilibrium}. In this short note I show that this method can be applied to continuous time systems, and examine its practicality and accuracy in the context of one of the simplest continuous time models, the deterministic Ramsey model. The advantage of this model is that it is relatively well-studied,\footnote{\textcite{aruoba2006comparing} compare a variety of numerical methods for the discrete-time version of this model with a stochastic productivity.} and despite its simplicity, it is sufficient for making the following points about the proposed method in continuous time:
 \begin{enumerate}
 \item The method is fast, but the resulting nonlinear system may have multiple roots even in a simple setting, so that it must be solved with care, preferably from a good initial guess. In this note I used continuation methods, starting from around the steady state.
 \item The method less accurate compared to collocation methods: Euler equation residuals deteriorate very quickly with distance form the steady state. For example, at half the steady state capital, the relative residual was $10^{-2}$, while a simple collocation method with $10$ Chebyshev polynomials can easily achieve $10^{-4}$. However, it is still more than accurate enough as a starting point for a nonlinear solver, so it can be used as an initial guess about the functional form for collocation methods.
@@ -71,12 +71,12 @@ While one of the reasons for this may be unfamiliarity with continuous-time buil
 \begin{equation}
   F(k) = A k^\alpha - \delta k
 \end{equation}
-and capital accumulation equation
+where $k_t$ is the capital stock, which develops according to the capital accumulation equation
 \begin{equation}
   \label{eq:capital-accumulation}
   \dot{k}_t = F(k_t) - c_t
 \end{equation}
-The most frequently used form of the Euler equation, usually obtained from the Hamiltonian, is\footnote{Eg see \textcite[Chapter 8]{acemoglu2008introduction}.}
+where $c_t$ is consumption. The most frequently used form of the Euler equation, usually obtained from the Hamiltonian, is\footnote{Eg see \textcite[Chapter 8]{acemoglu2008introduction}.}
 \begin{equation}
   \label{eq:Euler-equation-t}
   \frac{\dot{c}_t}{c_t} = \frac{1}{\theta} \bigl( F'(k_t) - \rho \bigr)
@@ -135,7 +135,7 @@ This would hold if the $c(\tk;k)$ was tangent to the approximated policy functio
   c_1(k)\bigl( F'(k) - c_1(k) \bigr) = \frac{1}{\theta}\biggl[ F''(k) c_0(k) + \bigl( F'(k) - \rho \bigr) c_1(k) \biggr]
 \end{equation}
 For each $k$, we solve the system of \eqref{eq:linear-c} and \eqref{eq:implicit-simple}.
-Note that in contrast to perturbation methods, \eqref{eq:implicit-simple} still takes the local curvature of $F$ into account, contributing to the accuracy of the method.
+Note that in contrast to perturbation methods, \eqref{eq:implicit-simple} still takes the local curvature of $F$ into account, contributing to the accuracy of the method. When comparing to projection methods, it is important to note that the consistent local approximation does not rely on knowing the solution at other gridpoints, which is advantageous for problems which suffer from the curse of dimensionality.
 
 \paragraph{Numerical methods.}
 
@@ -170,8 +170,10 @@ One remarkable feature of the consistent local method is that because of its loc
 
 \paragraph{Conclusion.} I examined the accuracy of the method proposed by \textcite{den2015exact} in the context of a simple continuous time Ramsey model, and found that it is much less accurate than collocation methods. Note, however, that the method is still reasonably accurate, and since it can be implemented very easily, it may be a good first pass approach to study the solution of functional equations. In particular, it can be used for exploratory analysis, or to provide initial guesses for nonlinear solvers in collocation methods, and since it can be evaluated at any points, it can also be used to check the assumptions about functional forms that underlie more complex methods, such as sparse grid approximations \parencite{judd2014smolyak}. The only part which requires more care is solving the nonlinear system. With these in mind, the method may be a useful addition to our toolkit for solving functional equations in economics.
 
+\clearpage
 \printbibliography
 
+\clearpage
 \begin{figure}[b]
   \centering
   \begin{minipage}[t]{0.48\linewidth}
@@ -185,17 +187,17 @@ One remarkable feature of the consistent local method is that because of its loc
     \label{fig:ckprime}
   \end{minipage}
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/cderiv-consistentlocal.pdf}
+    \includegraphics[width=\figwidth]{../fig/cderiv-consistent-local.pdf}
     \caption{$c_1(k)$ (solid) and $\partial c_0(k)/ \partial k$ (dashed), the latter calculated from a local quadratic approximation.}
     \label{fig:cderiv-consistentlocal}
   \end{minipage}\hfill%
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/ck-tangents-consistentlocal.pdf}
+    \includegraphics[width=\figwidth]{../fig/ck-tangents-consistent-local.pdf}
     \caption{Policy function $c_0(k)$, with tangents drawn according to $c_1(k)$.}
     \label{fig:policy-tangents}
   \end{minipage}
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/eulerresid-consistentlocal.pdf}
+    \includegraphics[width=\figwidth]{../fig/eulerresid-consistent-local.pdf}
     \caption{Residual of equation \eqref{eq:Euler-elasticity} for the consistent local method.}
     \label{fig:euler-residual-consistentlocal}
   \end{minipage}\hfill%
