@@ -40,13 +40,13 @@
 
 \begin{document}
 
-\title{Consistent future approximation in continuous time}
+\title{Consistent local approximation in continuous time}
 \author{Tam\'as K.~Papp\thanks{\url{tkpapp@gmail.com}}}
 \date{\today}
 \maketitle
 
 \begin{abstract}
-  Analysis of the ``consistent future approximation'' method of \textcite{den2015exact} applied for the deterministic Ramsey model in continuous time. I show that while the method is easy to set up, solving the nonlinear system requires nontrivial methods for even a simple system, and once solved, the resulting residuals of the Euler equation are large compared to collocation methods, but still small enough in absolute magitude to make the model useful in practice, especially for making an initial guess about functional forms in collocations methods. 
+  Analysis of the approximation method of \textcite{den2015exact} and \textcite{levintal2016taylor}, applied to the deterministic Ramsey model in continuous time. I show that while the method is easy to set up, solving the nonlinear system requires nontrivial methods for even a simple system, and once solved, the resulting residuals of the Euler equation are large compared to collocation methods, but still small enough in absolute magitude to make the model useful in practice, especially for making an initial guess about functional forms in collocations methods. 
 \end{abstract}
 
 \begin{center}
@@ -60,7 +60,7 @@ Continuous time models have been used extensively in macroeconomics, finance, an
 
 While one of the reasons for this may be unfamiliarity with continuous-time building blocks such as Itô and Lévy processes,\footnote{For an introduction, see \textcite{oksendal2005applied}.} the other difficulty is finding a solution to the resulting functional equations. When using projection methods, functional forms that describe optimal choices and values are approximated using function families with finitely many parameters. Since in continuous time there is no general contraction mapping equivalent to value iteration in discrete time, usually the only option is to solve these problems using general nonlinear solvers, which are not guaranteed to converge, especially when the starting point is not close enough to the solution.\footnote{\textcite{kushner2013numerical} presents an alternative method, using discrete-time approximations of continuous processes.}
 
-\textcite{den2015exact} propose a method for finding approximate solutions to discrete time systems described by a functional equation, by approximating policy functions with a linear (or similarly simple) form and imposing consistency between present and future policies around a particular state. In this short note I show that this method can be applied to continuous time systems, and examine its practicality and accuracy in the context of one of the simplest continuous time models, the deterministic Ramsey model. The advantage of this model is that it is relatively well-studied,\footnote{\textcite{aruoba2006comparing} compare a variety of numerical methods for the discrete-time version of this model with a stochastic productivity.} and despite its simplicity, it is sufficient for making the following points about the proposed method in continuous time:
+\textcite{den2015exact} propose a method for finding approximate solutions to discrete time systems described by a functional equation, by approximating policy functions with a linear (or similarly simple) form and imposing consistency between present and future policies around a particular state. \textcite{levintal2016taylor} proposed a similar method independently, while an very similar approach can be found in \textcite[Appendix B]{krusell2002equilibrium}. In this short note I show that this method can be applied to continuous time systems, and examine its practicality and accuracy in the context of one of the simplest continuous time models, the deterministic Ramsey model. The advantage of this model is that it is relatively well-studied,\footnote{\textcite{aruoba2006comparing} compare a variety of numerical methods for the discrete-time version of this model with a stochastic productivity.} and despite its simplicity, it is sufficient for making the following points about the proposed method in continuous time:
 \begin{enumerate}
 \item The method is fast, but the resulting nonlinear system may have multiple roots even in a simple setting, so that it must be solved with care, preferably from a good initial guess. In this note I used continuation methods, starting from around the steady state.
 \item The method less accurate compared to collocation methods: Euler equation residuals deteriorate very quickly with distance form the steady state. For example, at half the steady state capital, the relative residual was $10^{-2}$, while a simple collocation method with $10$ Chebyshev polynomials can easily achieve $10^{-4}$. However, it is still more than accurate enough as a starting point for a nonlinear solver, so it can be used as an initial guess about the functional form for collocation methods.
@@ -97,7 +97,7 @@ We cast this into the form
 \end{equation}
 which should be easier to manipulate. We are looking for the solution $c(k)$ to \eqref{eq:Euler-equation}.
 
-\paragraph{Methodology.} The key to the method outlined in \textcite{den2015exact} is the following:
+\paragraph{Methodology.} The key to the method outlined is the following:
 \begin{enumerate}
 \item fix $k$,
 \item assume a functional form for $c(k)$ around this point,
@@ -158,15 +158,15 @@ This is very accurate and will be useful for comparison. I refer to the collocat
 
 \paragraph{Solution and discussion.}
 
-I solve on the range $k \in (0.2 k_s, 2 k_s)$, with parameters $A=1$, $\alpha=0.3$, $\rho=0.02$, $\delta=0.05$, $\theta=2$.  This solution is referred to in the graphs as ``collocation'', while the method of \textcite{den2015exact} is labeled as ``consistent future''.
+I solve on the range $k \in (0.2 k_s, 2 k_s)$, with parameters $A=1$, $\alpha=0.3$, $\rho=0.02$, $\delta=0.05$, $\theta=2$.  This solution is referred to in the graphs as ``collocation'', while the method discussed in this paper is labeled as ``consistent local''.
 
-Figure~\ref{fig:ck} shows the policy function. The deviation from the exact solution is small but visible, with the exact solution method overpredicting consumption both above and below the steady state. More importantly, as can be seen in Figure~\ref{fig:ckprime} which shows the same comparison for $c_1(k)$ and and $\hc'(k)$, the consistent future method overpredicts $c'(k)$ above and underpredicts it below the steady state, respectively. Also, note that \eqref{eq:no-change-in-slope} is violated since $c_1(k)$ appears to have significant curvature.
+Figure~\ref{fig:ck} shows the policy function. The deviation from the exact solution is small but visible, with the exact solution method overpredicting consumption both above and below the steady state. More importantly, as can be seen in Figure~\ref{fig:ckprime} which shows the same comparison for $c_1(k)$ and and $\hc'(k)$, the consistent local method overpredicts $c'(k)$ above and underpredicts it below the steady state, respectively. Also, note that \eqref{eq:no-change-in-slope} is violated since $c_1(k)$ appears to have significant curvature.
 
-Figure~\ref{fig:cderiv-consistentfuture} checks \eqref{eq:local-validity} by plotting $c_1(0)$ and $c_0'(k)$, calculating the latter from a local quadratic curve. While \eqref{eq:local-validity} holds at the steady state by construction, it is violated significantly the further we move from the steady state: as $k$ approaches $0$, $c_0'(k) \approx 2 c_1(k)$. If we are aiming for a globally accurate solution, \eqref{eq:local-validity} turns out to be an unreasonable assumption. Figure~\ref{fig:policy-tangents} shows $c_0(k)$, but with tangents drawn using $c_0(k)$ and $c_1(k)$. This is another graphical illustration of the volation of \eqref{eq:local-validity}.
+Figure~\ref{fig:cderiv-consistentlocal} checks \eqref{eq:local-validity} by plotting $c_1(0)$ and $c_0'(k)$, calculating the latter from a local quadratic curve. While \eqref{eq:local-validity} holds at the steady state by construction, it is violated significantly the further we move from the steady state: as $k$ approaches $0$, $c_0'(k) \approx 2 c_1(k)$. If we are aiming for a globally accurate solution, \eqref{eq:local-validity} turns out to be an unreasonable assumption. Figure~\ref{fig:policy-tangents} shows $c_0(k)$, but with tangents drawn using $c_0(k)$ and $c_1(k)$. This is another graphical illustration of the volation of \eqref{eq:local-validity}.
 
-Figures~\ref{fig:euler-residual-consistentfuture} and \ref{fig:eulerresid-collocation} show the residual of \eqref{eq:Euler-elasticity} for the consistent future and collocation methods, respectively. Graphing this residual is a standard procedure of evaluating collocation methods \parencite{boyd2001chebyshev, judd98:_numer_method_in_econom}, since the residual can be considered as a unitless prediction error. Note that because of the errors discussed above, the consistent future method displays relatively low accuracy when compared to collocation methods, however, the residual is still small for practical purposes.
+Figures~\ref{fig:euler-residual-consistentlocal} and \ref{fig:eulerresid-collocation} show the residual of \eqref{eq:Euler-elasticity} for the consistent local and collocation methods, respectively. Graphing this residual is a standard procedure of evaluating collocation methods \parencite{boyd2001chebyshev, judd98:_numer_method_in_econom}, since the residual can be considered as a unitless prediction error. Note that because of the errors discussed above, the consistent local method displays relatively low accuracy when compared to collocation methods, however, the residual is still small for practical purposes.
 
-One remarkable feature of the consistent future method is that because of its locality, it does not break down as $k\to0$, in contrast to collocation methods, which require transformations or more gridpoints in areas of high curvature. This again makes it ideal for initial guesses and exploratory analysis.
+One remarkable feature of the consistent local method is that because of its locality, it does not break down as $k\to0$, in contrast to collocation methods, which require transformations or more gridpoints in areas of high curvature. This again makes it ideal for initial guesses and exploratory analysis.
 
 \paragraph{Conclusion.} I examined the accuracy of the method proposed by \textcite{den2015exact} in the context of a simple continuous time Ramsey model, and found that it is much less accurate than collocation methods. Note, however, that the method is still reasonably accurate, and since it can be implemented very easily, it may be a good first pass approach to study the solution of functional equations. In particular, it can be used for exploratory analysis, or to provide initial guesses for nonlinear solvers in collocation methods, and since it can be evaluated at any points, it can also be used to check the assumptions about functional forms that underlie more complex methods, such as sparse grid approximations \parencite{judd2014smolyak}. The only part which requires more care is solving the nonlinear system. With these in mind, the method may be a useful addition to our toolkit for solving functional equations in economics.
 
@@ -176,28 +176,28 @@ One remarkable feature of the consistent future method is that because of its lo
   \centering
   \begin{minipage}[t]{0.48\linewidth}
     \includegraphics[width=\figwidth]{../fig/ck.pdf}
-    \caption{Policy functions (consistent future: dashed, collocation: solid, steady state: dot).}
+    \caption{Policy functions (consistent local: dashed, collocation: solid, steady state: dot).}
     \label{fig:ck}
   \end{minipage}\hfill%
   \begin{minipage}[t]{0.48\linewidth}
     \includegraphics[width=\figwidth]{../fig/ckprime.pdf}
-    \caption{$c_1(k)$ for consistent future approximation (dashed), $c'(k)$ for collocation (solid), steady state (dot).}
+    \caption{$c_1(k)$ for consistent local approximation (dashed), $c'(k)$ for collocation (solid), steady state (dot).}
     \label{fig:ckprime}
   \end{minipage}
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/cderiv-consistentfuture.pdf}
+    \includegraphics[width=\figwidth]{../fig/cderiv-consistentlocal.pdf}
     \caption{$c_1(k)$ (solid) and $\partial c_0(k)/ \partial k$ (dashed), the latter calculated from a local quadratic approximation.}
-    \label{fig:cderiv-consistentfuture}
+    \label{fig:cderiv-consistentlocal}
   \end{minipage}\hfill%
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/ck-tangents-consistentfuture.pdf}
+    \includegraphics[width=\figwidth]{../fig/ck-tangents-consistentlocal.pdf}
     \caption{Policy function $c_0(k)$, with tangents drawn according to $c_1(k)$.}
     \label{fig:policy-tangents}
   \end{minipage}
   \begin{minipage}[t]{0.48\linewidth}
-    \includegraphics[width=\figwidth]{../fig/eulerresid-consistentfuture.pdf}
-    \caption{Residual of equation \eqref{eq:Euler-elasticity} for the consistent future method.}
-    \label{fig:euler-residual-consistentfuture}
+    \includegraphics[width=\figwidth]{../fig/eulerresid-consistentlocal.pdf}
+    \caption{Residual of equation \eqref{eq:Euler-elasticity} for the consistent local method.}
+    \label{fig:euler-residual-consistentlocal}
   \end{minipage}\hfill%
   \begin{minipage}[t]{0.48\linewidth}
     \includegraphics[width=\figwidth]{../fig/eulerresid-collocation.pdf}

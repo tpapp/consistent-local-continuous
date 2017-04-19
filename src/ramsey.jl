@@ -2,7 +2,7 @@
 # environment and setup
 ######################################################################
 if ENV["USER"] == "tamas"
-    cd(expanduser("~/research/exact-present/fig/"))
+    cd(expanduser("~/research/consistent-local-continuous/fig/"))
 else
     warn("in your own environment, set the path and the backend")
     "Ensure that a package is available, possibly cloning from repo."
@@ -31,6 +31,7 @@ using NLsolve
 "Save plot `plt` with given `basename`, appending appropriate extensions."
 function saveplot(plt, basename)
     Plots.pdf(plt, basename * ".pdf")
+    # workaround for https://github.com/JuliaPlots/Plots.jl/issues/750
     PlotlyJS.savefig(plt.o, basename * ".svg")
 end
 
@@ -207,7 +208,7 @@ inner_ks, inner_c′_approx, inner_r = residual_quadapprox(model, ks, c01s[1,:])
 res = CollocationResidual(model, DomainTrans(kdom, Chebyshev(10)), euler_residual)
 c_sol, o = solve_collocation(res, k->cₛ*k/kₛ; ftol=1e-10, method = :newton)
 
-# collocation using a better starting point, guessed from the consistent future
+# collocation using a better starting point, guessed from the consistent local
 c_sol2, o2 = solve_collocation(res,
                                k -> solve_at_k(model, k, nearest_k_guess(ks, c01s, k))[1])
 
@@ -215,17 +216,17 @@ c_sol2, o2 = solve_collocation(res,
 # plots
 ######################################################################
 
-# plot of c(k), collocation vs consistent future
+# plot of c(k), collocation vs consistent local
 plt = plot(k->c_sol(k), ks, xlab = "k", ylab = "c(k)",
            label = "collocation", color = "black", legend = false)
-plot!(plt, ks, c01s[1, :], linestyle = :dash, label = "consistent fut.", color = "black")
+plot!(plt, ks, c01s[1, :], linestyle = :dash, label = "consistent local", color = "black")
 scatter!(plt, [kₛ], [cₛ], label = "steady state")
 saveplot(plt, "ck")
 
-# plot of c′(k), collocation vs consistent future
+# plot of c′(k), collocation vs consistent local
 plt = plot(k->c_sol(Partial(k)), ks, legend = false,
            xlab = "k", ylab = "c′(k)", label = "collocation", color = "black")
-plot!(plt, ks, c01s[2, :], linestyle = :dash, label = "consistent fut.", color = "black")
+plot!(plt, ks, c01s[2, :], linestyle = :dash, label = "consistent local", color = "black")
 scatter!(plt, [kₛ], [c_sol(Partial(kₛ))], label = "steady state")
 saveplot(plt, "ckprime")
 
@@ -234,7 +235,7 @@ plt = plot(inner_ks, inner_c′_approx, label = "c′ from c₀", xlab="k", ylab
            color = "black", legend = false)
 plot!(plt, inner_ks, c01s[2, 2:end], label = "c₁", color = "black", linestyle = :dash)
 scatter!(plt, [kₛ], [c_sol(Partial(kₛ))], label = "steady state")
-saveplot(plt, "cderiv-consistentfuture")
+saveplot(plt, "cderiv-consistent-local")
 
 # euler residual
 plt = plot(k->euler_residual(model, c_sol, k), ks,
@@ -242,11 +243,11 @@ plt = plot(k->euler_residual(model, c_sol, k), ks,
 scatter!(plt, zero, points(c_sol), label = "collocation points")
 saveplot(plt, "eulerresid-collocation")
 
-# euler residual for consistent future
-plt = plot(inner_ks, inner_r, color = "black", label = "consistent fut.", xlab = "k",
+# euler residual for consistent local
+plt = plot(inner_ks, inner_r, color = "black", label = "consistent local", xlab = "k",
            ylab = "Euler residual", legend = false)
 scatter!(plt, zero, [kₛ], label = "steady state")
-saveplot(plt, "eulerresid-consistentfuture")
+saveplot(plt, "eulerresid-consistent-local")
 
 # plot of tangents c₁
 plt = plot(ks, c01s[1, :], xlab = "k", ylab = "c(k)", legend = false, color = "black",
@@ -254,5 +255,5 @@ plt = plot(ks, c01s[1, :], xlab = "k", ylab = "c(k)", legend = false, color = "b
 for i in 10:20:length(ks)
     display(plot_tangent!(plt, ks[i], c01s[:, i], 1, 0.5))
 end
-saveplot(plt, "ck-tangents-consistentfuture")
+saveplot(plt, "ck-tangents-consistent-local")
 
